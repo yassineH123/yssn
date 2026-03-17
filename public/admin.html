@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin ✦</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=Tenor+Sans&family=Cormorant:ital,wght@0,300;1,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0a0e;--surface:#141118;--rose:#e8a0b0;--rose2:#d4607a;--gold:#c8a86b;--gold2:#e8cc90;--cream:#f5ede0;--muted:rgba(245,237,224,.45);--border:rgba(200,168,107,.15)}
+body{background:var(--bg);color:var(--cream);font-family:'Tenor Sans',sans-serif;min-height:100vh}
+
+/* blobs */
+.blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.blob-1{width:500px;height:500px;background:radial-gradient(circle,rgba(200,80,110,.1),transparent 70%);top:-150px;right:-100px}
+.blob-2{width:400px;height:400px;background:radial-gradient(circle,rgba(200,168,107,.07),transparent 70%);bottom:-100px;left:-100px}
+
+/* pwd screen */
+#pwd-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:var(--bg)}
+.pwd-label{font-family:'Cormorant',serif;font-style:italic;font-size:.8rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.6}
+#pwd-screen h2{font-family:'Playfair Display',serif;font-style:italic;font-size:2.8rem;font-weight:400;background:linear-gradient(135deg,var(--cream),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+#pwd-input{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:4px;padding:14px 28px;color:var(--cream);font-family:'Tenor Sans',sans-serif;font-size:.95rem;outline:none;text-align:center;letter-spacing:.25em;width:280px;transition:border-color .3s}
+#pwd-input:focus{border-color:rgba(200,168,107,.4)}
+#pwd-input::placeholder{letter-spacing:.1em;opacity:.3}
+#pwd-error{color:var(--rose2);font-size:.8rem;letter-spacing:.05em;opacity:0;transition:opacity .3s;min-height:16px}
+.pwd-btn{background:transparent;border:1px solid rgba(200,168,107,.35);color:var(--gold2);cursor:pointer;padding:13px 44px;font-family:'Tenor Sans',sans-serif;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;transition:all .3s}
+.pwd-btn:hover{background:rgba(200,168,107,.07);border-color:rgba(200,168,107,.6)}
+
+/* app */
+#app{display:none;position:relative;z-index:2}
+
+/* header */
+.adm-header{text-align:center;padding:56px 24px 32px;border-bottom:1px solid var(--border)}
+.adm-label{font-family:'Cormorant',serif;font-style:italic;font-size:.78rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);opacity:.5;margin-bottom:14px}
+.adm-header h1{font-family:'Playfair Display',serif;font-style:italic;font-size:2.4rem;font-weight:400;background:linear-gradient(135deg,var(--cream),var(--gold2),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.adm-header p{color:var(--muted);font-size:.82rem;margin-top:8px;letter-spacing:.05em}
+.adm-nav{display:flex;gap:12px;justify-content:center;margin-top:20px}
+.nav-btn{padding:8px 22px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Tenor Sans',sans-serif;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;text-decoration:none}
+.nav-btn:hover{border-color:rgba(200,168,107,.4);color:var(--gold2)}
+
+/* body grid */
+.adm-body{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:980px;margin:32px auto;padding:0 20px 80px}
+@media(max-width:660px){.adm-body{grid-template-columns:1fr}}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:2px;padding:28px}
+.card-title{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.card-title h2{font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:1.25rem;color:var(--gold2)}
+
+/* drop zone */
+.drop-zone{border:1px dashed rgba(200,168,107,.25);border-radius:2px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:14px}
+.drop-zone:hover,.drop-zone.over{border-color:rgba(200,168,107,.5);background:rgba(200,168,107,.04)}
+.drop-zone p{color:var(--muted);font-size:.84rem;line-height:1.7}
+.drop-zone strong{color:var(--gold2);font-weight:400}
+
+/* textarea */
+.textarea{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:2px;padding:12px 16px;color:var(--cream);font-family:'Cormorant',serif;font-style:italic;font-size:1rem;outline:none;transition:border-color .3s;margin-bottom:14px;resize:vertical;min-height:110px;line-height:1.7}
+.textarea:focus{border-color:rgba(200,168,107,.4)}
+.textarea::placeholder{opacity:.3;font-style:italic}
+
+/* buttons */
+.btn{width:100%;padding:12px;border:none;cursor:pointer;font-family:'Tenor Sans',sans-serif;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;transition:all .3s}
+.btn-primary{background:rgba(200,168,107,.12);border:1px solid rgba(200,168,107,.35);color:var(--gold2)}
+.btn-primary:hover{background:rgba(200,168,107,.2);border-color:rgba(200,168,107,.6)}
+
+/* upload status */
+#upload-status{display:none;color:var(--gold);font-size:.8rem;margin-bottom:12px;letter-spacing:.05em}
+.spin{display:inline-block;width:12px;height:12px;border:1.5px solid rgba(200,168,107,.3);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* lists */
+.list{margin-top:20px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.list-item{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:2px;padding:10px 14px;font-size:.82rem;color:var(--muted)}
+.list-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'Cormorant',serif;font-style:italic;font-size:.95rem;color:rgba(245,237,224,.65)}
+.thumb{width:42px;height:42px;object-fit:cover;border-radius:1px;flex-shrink:0;border:1px solid var(--border)}
+.del{background:none;border:1px solid rgba(212,96,122,.25);color:rgba(212,96,122,.7);border-radius:2px;padding:3px 10px;cursor:pointer;font-size:.72rem;letter-spacing:.1em;flex-shrink:0;transition:all .2s}
+.del:hover{background:rgba(212,96,122,.1);border-color:rgba(212,96,122,.5)}
+
+/* toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--surface);border:1px solid var(--border);color:var(--gold2);padding:12px 28px;font-size:.8rem;letter-spacing:.1em;opacity:0;transition:opacity .35s,transform .35s;z-index:999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:rgba(200,168,107,.2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- Password -->
+<div id="pwd-screen">
+  <div class="pwd-label">Restricted Access</div>
+  <h2>Admin Panel</h2>
+  <input id="pwd-input" type="password" placeholder="Enter password" autocomplete="off"/>
+  <div id="pwd-error"></div>
+  <button class="pwd-btn" onclick="login()">Enter ✦</button>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="adm-header">
+    <div class="adm-label">Control Panel</div>
+    <h1>Admin Panel</h1>
+    <p>All changes appear on her page instantly ♡</p>
+    <div class="adm-nav">
+      <a href="/" class="nav-btn" target="_blank">View her page</a>
+      <button class="nav-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="adm-body">
+    <!-- Photos -->
+    <div class="card">
+      <div class="card-title"><h2>📷 Photos</h2></div>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-in').click()">
+        <p><strong>Click or drag</strong> photos here<br/>JPG, PNG — max 4 MB each</p>
+      </div>
+      <input type="file" id="file-in" accept="image/*" multiple style="display:none" onchange="uploadFiles(this.files)"/>
+      <div id="upload-status"></div>
+      <div class="list" id="photo-list"></div>
+    </div>
+
+    <!-- Messages -->
+    <div class="card">
+      <div class="card-title"><h2>💌 Messages</h2></div>
+      <textarea class="textarea" id="msg-input" placeholder="Write a romantic message for her…"></textarea>
+      <button class="btn btn-primary" onclick="addMessage()">+ Add Message</button>
+      <div class="list" id="msg-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let adminPass='';
+
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')login();});
+
+async function login(){
+  const val=document.getElementById('pwd-input').value;
+  const r=await fetch('/api/admin/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:val})});
+  if(r.ok){
+    adminPass=val;
+    document.getElementById('pwd-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadAll();
+  }else{
+    const e=document.getElementById('pwd-error');
+    e.textContent='Incorrect password.';e.style.opacity='1';
+    setTimeout(()=>e.style.opacity='0',2500);
+    document.getElementById('pwd-input').value='';
+  }
+}
+
+function logout(){adminPass='';location.reload();}
+function H(extra={}){return{'x-admin-password':adminPass,...extra};}
+
+async function loadAll(){
+  const r=await fetch('/api/data');
+  const d=await r.json();
+  renderPhotos(d.photos||[]);
+  renderMessages(d.messages||[]);
+}
+
+function renderPhotos(photos){
+  const el=document.getElementById('photo-list');el.innerHTML='';
+  photos.forEach(p=>{
+    const d=document.createElement('div');d.className='list-item';
+    d.innerHTML=`<img class="thumb" src="${p.dataUrl}"/><span>${p.name}</span><button class="del" onclick="deletePhoto('${p.id}')">Remove</button>`;
+    el.appendChild(d);
+  });
+}
+
+async function uploadFiles(files){
+  if(!files.length)return;
+  const status=document.getElementById('upload-status');
+  status.style.display='block';
+  for(const file of Array.from(files)){
+    if(file.size>4*1024*1024){showToast(file.name+' too large (max 4MB)');continue;}
+    status.innerHTML=`<span class="spin"></span>Uploading ${file.name}…`;
+    const dataUrl=await toBase64(file);
+    await fetch('/api/admin/photo',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({name:file.name,dataUrl})});
+  }
+  status.style.display='none';
+  document.getElementById('file-in').value='';
+  showToast('Photos uploaded ✓');
+  loadAll();
+}
+
+function toBase64(file){
+  return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
+}
+
+async function deletePhoto(id){
+  await fetch('/api/admin/photo/'+id,{method:'DELETE',headers:H()});
+  showToast('Photo removed.');loadAll();
+}
+
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');uploadFiles(e.dataTransfer.files);});
+
+function renderMessages(messages){
+  const el=document.getElementById('msg-list');el.innerHTML='';
+  messages.forEach(m=>{
+    const d=document.createElement('div');d.className='list-item';
+    d.innerHTML=`<span>${m.text}</span><button class="del" onclick="deleteMsg('${m.id}')">Remove</button>`;
+    el.appendChild(d);
+  });
+}
+
+async function addMessage(){
+  const t=document.getElementById('msg-input').value.trim();
+  if(!t){showToast('Write a message first!');return;}
+  await fetch('/api/admin/message',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({text:t})});
+  document.getElementById('msg-input').value='';
+  showToast('Message saved ✓');
+  loadAll();
+}
+
+async function deleteMsg(id){
+  await fetch('/api/admin/message/'+id,{method:'DELETE',headers:H()});
+  showToast('Message removed.');loadAll();
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>

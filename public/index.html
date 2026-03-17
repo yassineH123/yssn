@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>For You ♡</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Tenor+Sans&family=Cormorant:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0c0a0e;
+  --surface:#141118;
+  --rose:#e8a0b0;
+  --rose2:#d4607a;
+  --gold:#c8a86b;
+  --gold2:#e8cc90;
+  --cream:#f5ede0;
+  --muted:rgba(245,237,224,.45);
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:'Tenor Sans',sans-serif;overflow-x:hidden;min-height:100vh;cursor:default}
+
+/* ── noise texture overlay ── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1;opacity:.6}
+
+/* ── ambient glow blobs ── */
+.blob{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.blob-1{width:600px;height:600px;background:radial-gradient(circle,rgba(200,80,110,.12),transparent 70%);top:-200px;right:-100px}
+.blob-2{width:500px;height:500px;background:radial-gradient(circle,rgba(200,168,107,.08),transparent 70%);bottom:-150px;left:-100px}
+
+/* ── header ── */
+header{position:relative;z-index:2;text-align:center;padding:80px 24px 40px}
+
+.header-label{font-family:'Cormorant',serif;font-style:italic;font-size:.82rem;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:24px}
+
+header h1{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(3.5rem,9vw,7rem);font-weight:400;line-height:1;background:linear-gradient(160deg,var(--cream) 0%,var(--gold2) 40%,var(--rose) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:titleIn 1.2s cubic-bezier(.16,1,.3,1) both}
+
+@keyframes titleIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+.header-sub{font-family:'Cormorant',serif;font-style:italic;font-size:1.15rem;color:var(--muted);margin-top:20px;letter-spacing:.04em;animation:titleIn 1.2s .2s cubic-bezier(.16,1,.3,1) both}
+
+.ornament{display:flex;align-items:center;justify-content:center;gap:16px;margin:32px auto;opacity:.4;animation:titleIn 1.2s .3s both}
+.ornament-line{width:80px;height:.5px;background:linear-gradient(90deg,transparent,var(--gold))}
+.ornament-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg)}
+
+.hint{font-family:'Cormorant',serif;font-style:italic;font-size:.95rem;color:var(--muted);letter-spacing:.08em;animation:titleIn 1.2s .4s both;position:relative;z-index:2;text-align:center;margin-bottom:60px}
+
+/* ── gallery ── */
+#gallery{position:relative;z-index:2;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;max-width:1200px;margin:0 auto;padding:0 2px 100px}
+
+.photo-card{position:relative;overflow:hidden;cursor:pointer;aspect-ratio:2/3;background:var(--surface)}
+
+.photo-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.16,1,.3,1),filter .7s ease;filter:brightness(.85) saturate(.9)}
+
+.photo-card:hover img{transform:scale(1.08);filter:brightness(.6) saturate(1.1)}
+
+.card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(12,10,14,.9) 0%,rgba(12,10,14,.2) 50%,transparent 100%);opacity:0;transition:opacity .5s ease;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 24px}
+
+.photo-card:hover .card-overlay{opacity:1}
+
+.card-text{font-family:'Playfair Display',serif;font-style:italic;font-size:1.1rem;color:var(--gold2);transform:translateY(12px);transition:transform .5s cubic-bezier(.16,1,.3,1);opacity:0}
+.photo-card:hover .card-text{transform:translateY(0);opacity:1}
+
+.card-sub{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--rose);margin-top:6px;transform:translateY(12px);transition:transform .5s .05s cubic-bezier(.16,1,.3,1);opacity:0}
+.photo-card:hover .card-sub{transform:translateY(0);opacity:1}
+
+.card-corner{position:absolute;top:16px;right:16px;width:24px;height:24px;border-top:1px solid var(--gold);border-right:1px solid var(--gold);opacity:0;transition:opacity .4s}
+.photo-card:hover .card-corner{opacity:.6}
+
+/* ── loading ── */
+#loading{position:relative;z-index:2;text-align:center;padding:120px 24px}
+.loader{display:inline-block;position:relative;width:48px;height:48px;margin-bottom:24px}
+.loader::before,.loader::after{content:'';position:absolute;border-radius:50%;border:1px solid transparent}
+.loader::before{inset:0;border-top-color:var(--gold);animation:spin 1.2s linear infinite}
+.loader::after{inset:8px;border-top-color:var(--rose);animation:spin .8s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{font-family:'Cormorant',serif;font-style:italic;color:var(--muted);font-size:1rem;letter-spacing:.1em}
+
+/* ── empty ── */
+#empty{display:none;position:relative;z-index:2;text-align:center;padding:120px 24px}
+#empty p{font-family:'Playfair Display',serif;font-style:italic;color:var(--muted);font-size:1.4rem}
+
+/* ── modal ── */
+#modal{display:none;position:fixed;inset:0;z-index:200;align-items:center;justify-content:center;padding:20px}
+#modal.open{display:flex}
+
+#modal-backdrop{position:absolute;inset:0;background:rgba(8,6,10,.85);backdrop-filter:blur(12px);animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+#modal-box{position:relative;z-index:2;width:100%;max-width:560px;animation:modalIn .6s cubic-bezier(.16,1,.3,1) both;overflow:hidden}
+@keyframes modalIn{from{opacity:0;transform:translateY(40px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+.modal-photo-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+#modal-photo{width:100%;height:100%;object-fit:cover;display:none;filter:brightness(.7)}
+.modal-photo-gradient{position:absolute;inset:0;background:linear-gradient(to top,var(--bg) 0%,transparent 60%)}
+
+.modal-content{background:var(--bg);border:1px solid rgba(200,168,107,.15);border-top:none;padding:40px 44px 48px;text-align:center;position:relative}
+
+.modal-content::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+.modal-icon{font-size:1.8rem;margin-bottom:20px;display:block;animation:rosePop .6s .2s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes rosePop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+#modal-text{font-family:'Playfair Display',serif;font-style:italic;font-size:clamp(1.2rem,3vw,1.6rem);line-height:1.8;color:var(--cream);letter-spacing:.01em;animation:textIn .8s .3s cubic-bezier(.16,1,.3,1) both;position:relative;padding:0 8px}
+@keyframes textIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+#modal-text::before{content:'\201C';font-family:'Playfair Display',serif;font-size:5rem;color:var(--rose2);line-height:0;vertical-align:-.5em;margin-right:2px;opacity:.6}
+#modal-text::after{content:'\201D';font-family:'Playfair Display',serif;font-size:5rem;color:var(--rose2);line-height:0;vertical-align:-.5em;margin-left:2px;opacity:.6}
+
+.modal-divider{display:flex;align-items:center;justify-content:center;gap:12px;margin:28px auto;animation:textIn .8s .4s both;opacity:.4}
+.modal-divider::before,.modal-divider::after{content:'';flex:1;max-width:60px;height:.5px;background:var(--gold)}
+.modal-divider span{width:4px;height:4px;background:var(--gold);transform:rotate(45deg)}
+
+#modal-close{background:transparent;border:1px solid rgba(200,168,107,.3);color:var(--gold2);cursor:pointer;padding:13px 40px;font-family:'Tenor Sans',sans-serif;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;transition:all .3s;animation:textIn .8s .5s both}
+#modal-close:hover{background:rgba(200,168,107,.08);border-color:var(--gold)}
+
+/* ── admin link ── */
+#admin-link{position:fixed;bottom:20px;right:20px;z-index:50;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(200,168,107,.1);border-radius:50%;color:rgba(200,168,107,.2);text-decoration:none;font-size:.8rem;transition:all .3s}
+#admin-link:hover{border-color:rgba(200,168,107,.4);color:rgba(200,168,107,.6);background:rgba(200,168,107,.05)}
+
+/* ── petals ── */
+.petal{position:fixed;pointer-events:none;z-index:1;animation:petalFall linear infinite}
+@keyframes petalFall{0%{transform:translateY(-40px) rotate(0deg);opacity:.8}100%{transform:translateY(105vh) rotate(360deg) translateX(30px);opacity:0}}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(200,168,107,.3);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div id="petals-container"></div>
+
+<header>
+  <div class="header-label">A gift from the heart</div>
+  <h1>For You</h1>
+  <p class="header-sub">Every photo holds a word, every word holds a feeling…</p>
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line"></div>
+  </div>
+  <p class="hint">Touch a photo to reveal your message ♡</p>
+</header>
+
+<div id="loading"><div class="loader"></div><p>Loading your memories…</p></div>
+<div id="gallery"></div>
+<div id="empty"><p>No photos yet — come back soon ♡</p></div>
+
+<div id="modal">
+  <div id="modal-backdrop" onclick="closeModal()"></div>
+  <div id="modal-box">
+    <div class="modal-photo-wrap">
+      <img id="modal-photo" src="" alt=""/>
+      <div class="modal-photo-gradient"></div>
+    </div>
+    <div class="modal-content">
+      <span class="modal-icon">🌹</span>
+      <div id="modal-text"></div>
+      <div class="modal-divider"><span></span></div>
+      <button id="modal-close" onclick="closeModal()">Close ♡</button>
+    </div>
+  </div>
+</div>
+
+<a id="admin-link" href="/admin.html" title="Admin">✦</a>
+
+<script>
+// petals
+(function(){
+  const c=document.getElementById('petals-container');
+  const shapes=['♡','✦','·','∘'];
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');
+    p.className='petal';
+    const r=Math.random();
+    p.style.cssText=`left:${r*100}%;font-size:${8+r*8}px;color:rgba(${r>.5?'232,160,176':'200,168,107'},.${2+Math.floor(r*4)});animation-duration:${8+r*10}s;animation-delay:${r*10}s;`;
+    p.textContent=shapes[Math.floor(r*shapes.length)];
+    c.appendChild(p);
+  }
+})();
+
+let appData={photos:[],messages:[]};
+let seenIds=JSON.parse(sessionStorage.getItem('seenIds')||'[]');
+
+async function loadData(){
+  try{
+    const r=await fetch('/api/data');
+    if(r.ok) appData=await r.json();
+  }catch(e){console.error(e);}
+  document.getElementById('loading').style.display='none';
+  renderGallery();
+}
+
+function renderGallery(){
+  const g=document.getElementById('gallery');
+  const empty=document.getElementById('empty');
+  g.innerHTML='';
+  if(!appData.photos||!appData.photos.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  appData.photos.forEach((p,i)=>{
+    const card=document.createElement('div');
+    card.className='photo-card';
+    card.style.animationDelay=(i*.1)+'s';
+    card.innerHTML=`
+      <img src="${p.dataUrl}" alt="${p.name||''}"/>
+      <div class="card-overlay">
+        <div class="card-text">Reveal my message</div>
+        <div class="card-sub">Click to open ♡</div>
+      </div>
+      <div class="card-corner"></div>`;
+    card.onclick=()=>openModal(p);
+    g.appendChild(card);
+  });
+}
+
+async function openModal(photo){
+  try{
+    const r=await fetch('/api/pick-message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({seen:seenIds})});
+    const data=await r.json();
+    if(!data.message) return;
+    seenIds.push(data.message.id);
+    sessionStorage.setItem('seenIds',JSON.stringify(seenIds));
+    document.getElementById('modal-text').textContent=data.message.text;
+    const mp=document.getElementById('modal-photo');
+    mp.src=photo.dataUrl;
+    mp.style.display='block';
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  }catch(e){console.error(e);}
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+document.getElementById('modal-backdrop').onclick=closeModal;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+loadData();
+</script>
+</body>
+</html>
